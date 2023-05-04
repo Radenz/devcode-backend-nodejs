@@ -5,7 +5,7 @@
     "outDir": "./dist",
     "removeComments": true,
     "strict": true,
-    "moduleResolution": "classic",
+    "moduleResolution": "nodenext",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
