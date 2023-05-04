@@ -1,0 +1,28 @@
+{
+  "name": "devcode-backend-nodejs",
+  "version": "1.0.0",
+  "description": "Devcode backend challenge of \"Todo List API\" implemented in NodeJS.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Radenz/devcode-backend-nodejs.git"
+  },
+  "keywords": [],
+  "author": "Raden Rifqi Rahman",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Radenz/devcode-backend-nodejs/issues"
+  },
+  "homepage": "https://github.com/Radenz/devcode-backend-nodejs#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mysql": "^2.18.1",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/mysql": "^2.15.21"
+  }
+}
