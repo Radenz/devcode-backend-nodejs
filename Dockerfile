@@ -5,6 +5,6 @@ COPY package.json .
 
 RUN npm i
 
-EXPOSE 8090
+EXPOSE 3030
 
 CMD ["node", "index.js"]
