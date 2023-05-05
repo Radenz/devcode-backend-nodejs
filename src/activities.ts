@@ -75,9 +75,11 @@ export async function updateTitleById(
 
 function adjustKeys(rawActivityGroup: RawActivityGroup): ActivityGroup {
   const activityGroup: GenericJson = rawActivityGroup;
+  activityGroup["id"] = activityGroup["activity_id"];
   activityGroup["createdAt"] = activityGroup["created_at"];
   activityGroup["updatedAt"] = activityGroup["updated_at"];
   delete activityGroup["created_at"];
   delete activityGroup["updated_at"];
+  delete activityGroup["activity_id"];
   return activityGroup as ActivityGroup;
 }
