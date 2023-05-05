@@ -51,25 +51,6 @@ export async function getTodoById(id: number): Promise<Nullable<TodoItem>> {
   ).then((todos) => (todos.length == 0 ? null : adjustKeysAndBool(todos[0])));
 }
 
-// !! Misleading example
-// export async function insertTodo(
-//   title: string,
-//   activityGroupId: number,
-//   isActive: boolean
-// ): Promise<TodoItem> {
-//   const insertResult = await query<OkPacket>(
-//     `INSERT INTO ${TODOS} (activity_group_id, title, is_active) VALUES (?, ?, ?)`,
-//     [activityGroupId, title, isActive]
-//   );
-
-//   const createdTodoId = insertResult.insertId;
-
-//   return await query<RawTodoItem[]>(
-//     `SELECT * FROM ${TODOS} WHERE todo_id = ?`,
-//     [createdTodoId]
-//   ).then((todos) => adjustKeys(todos[0]));
-// }
-
 export async function insertTodo(
   title: string,
   activityGroupId: number
