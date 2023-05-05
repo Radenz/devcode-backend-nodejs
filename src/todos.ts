@@ -57,7 +57,7 @@ export async function insertTodo(
   isActive: boolean
 ): Promise<TodoItem> {
   const insertResult = await query<OkPacket>(
-    `INSERT INTO ${TODOS} (activity_group_id, title, is_active) VALUES (?, ?)`,
+    `INSERT INTO ${TODOS} (activity_group_id, title, is_active) VALUES (?, ?, ?)`,
     [activityGroupId, title, isActive]
   );
 
