@@ -34,11 +34,11 @@ app.use(express.json());
  * Get all
  */
 app.get("/activity-groups", async (_, response) => {
-  const activityGroups = await getActivities();
-
-  response
-    .status(OK)
-    .json(ActivityGroupResponseFactory.successMany(activityGroups));
+  getActivities().then((activityGroups) => {
+    response
+      .status(OK)
+      .json(ActivityGroupResponseFactory.successMany(activityGroups));
+  });
 });
 
 /**
@@ -48,14 +48,15 @@ app.get(
   "/activity-groups/:id",
   async (request: Request<{ id: number }>, response) => {
     const activityGroupId = request.params.id;
-    const activityGroup = await getActivityById(activityGroupId);
 
-    const httpStatus = activityGroup ? OK : NOT_FOUND;
-    const responseBody = activityGroup
-      ? ActivityGroupResponseFactory.successOne(activityGroup)
-      : ActivityGroupResponseFactory.notFound(activityGroupId);
+    getActivityById(activityGroupId).then((activityGroup) => {
+      const httpStatus = activityGroup ? OK : NOT_FOUND;
+      const responseBody = activityGroup
+        ? ActivityGroupResponseFactory.successOne(activityGroup)
+        : ActivityGroupResponseFactory.notFound(activityGroupId);
 
-    response.status(httpStatus).json(responseBody);
+      response.status(httpStatus).json(responseBody);
+    });
   }
 );
 
@@ -73,11 +74,11 @@ app.post(
         .json(ActivityGroupResponseFactory.emptyTitle());
     }
 
-    const createdActivityGroup = await insertActivity(title, email!);
-
-    response
-      .status(CREATED)
-      .json(ActivityGroupResponseFactory.successOne(createdActivityGroup));
+    insertActivity(title, email!).then((createdActivityGroup) => {
+      response
+        .status(CREATED)
+        .json(ActivityGroupResponseFactory.successOne(createdActivityGroup));
+    });
   }
 );
 
@@ -91,28 +92,32 @@ app.patch(
     response
   ) => {
     const activityGroupId = request.params.id;
-    const activityGroup = await getActivityById(activityGroupId);
 
-    if (!activityGroup) {
-      return response
-        .status(NOT_FOUND)
-        .json(ActivityGroupResponseFactory.notFound(activityGroupId));
-    }
+    getActivityById(activityGroupId).then((activityGroup) => {
+      if (!activityGroup) {
+        return response
+          .status(NOT_FOUND)
+          .json(ActivityGroupResponseFactory.notFound(activityGroupId));
+      }
 
-    if (!request.body.title) {
-      return response
-        .status(BAD_REQUEST)
-        .json(ActivityGroupResponseFactory.emptyTitle());
-    }
+      if (!request.body.title) {
+        return response
+          .status(BAD_REQUEST)
+          .json(ActivityGroupResponseFactory.emptyTitle());
+      }
 
-    const { title } = request.body;
+      const { title } = request.body;
 
-    await updateTitleById(activityGroupId, title!);
-    const updatedActivityGroup = await getActivityById(activityGroupId);
-
-    response
-      .status(OK)
-      .json(ActivityGroupResponseFactory.successOne(updatedActivityGroup!));
+      updateTitleById(activityGroupId, title!).then(() => {
+        getActivityById(activityGroupId).then((updatedActivityGroup) => {
+          response
+            .status(OK)
+            .json(
+              ActivityGroupResponseFactory.successOne(updatedActivityGroup!)
+            );
+        });
+      });
+    });
   }
 );
 
@@ -123,18 +128,17 @@ app.delete(
   "/activity-groups/:id",
   async (request: Request<{ id: number }>, response) => {
     const activityGroupId = request.params.id;
-    const activityGroup = await getActivityById(activityGroupId);
+    getActivityById(activityGroupId).then((activityGroup) => {
+      if (activityGroup) {
+        return deleteActivityById(activityGroupId).then(() => {
+          response.status(OK).json(ActivityGroupResponseFactory.successEmpty());
+        });
+      }
 
-    if (activityGroup) {
-      await deleteActivityById(activityGroupId);
-    }
-
-    const httpStatus = activityGroup ? OK : NOT_FOUND;
-    const responseBody = activityGroup
-      ? ActivityGroupResponseFactory.successEmpty()
-      : ActivityGroupResponseFactory.notFound(activityGroupId);
-
-    response.status(httpStatus).json(responseBody);
+      response
+        .status(NOT_FOUND)
+        .json(ActivityGroupResponseFactory.notFound(activityGroupId));
+    });
   }
 );
 
@@ -151,8 +155,9 @@ app.get(
       getTodosFn = getTodosByActivityId.bind(null, activityGroupId);
     }
 
-    const todos = await getTodosFn();
-    response.status(OK).json(TodoResponseFactory.successMany(todos));
+    getTodosFn().then((todos) => {
+      response.status(OK).json(TodoResponseFactory.successMany(todos));
+    });
   }
 );
 
@@ -163,14 +168,14 @@ app.get(
   "/todo-items/:id",
   async (request: Request<{ id: number }>, response) => {
     const todoId = request.params.id;
-    const todoItem = await getTodoById(todoId);
+    getTodoById(todoId).then((todoItem) => {
+      const httpStatus = todoItem ? OK : NOT_FOUND;
+      const responseBody = todoItem
+        ? TodoResponseFactory.successOne(todoItem)
+        : TodoResponseFactory.notFound(todoId);
 
-    const httpStatus = todoItem ? OK : NOT_FOUND;
-    const responseBody = todoItem
-      ? TodoResponseFactory.successOne(todoItem)
-      : TodoResponseFactory.notFound(todoId);
-
-    response.status(httpStatus).json(responseBody);
+      response.status(httpStatus).json(responseBody);
+    });
   }
 );
 
@@ -194,11 +199,11 @@ app.post(
         .json(ActivityGroupResponseFactory.emptyActivityId());
     }
 
-    const createdTodoItem = await insertTodo(title, activity_group_id!);
-
-    response
-      .status(CREATED)
-      .json(TodoResponseFactory.successOne(createdTodoItem));
+    insertTodo(title, activity_group_id!).then((createdTodoItem) => {
+      response
+        .status(CREATED)
+        .json(TodoResponseFactory.successOne(createdTodoItem));
+    });
   }
 );
 
@@ -209,18 +214,22 @@ app.patch(
   "/todo-items/:id",
   async (request: Request<{ id: number }, any, any, TodoItem>, response) => {
     const todoId = request.params.id;
-    const todoItem = await getTodoById(todoId);
 
-    if (!todoItem) {
-      return response
-        .status(NOT_FOUND)
-        .json(TodoResponseFactory.notFound(todoId));
-    }
+    getTodoById(todoId).then((todoItem) => {
+      if (!todoItem) {
+        return response
+          .status(NOT_FOUND)
+          .json(TodoResponseFactory.notFound(todoId));
+      }
 
-    await updateTodoById(todoId, request.body);
-    const updatedTodoItem = await getTodoById(todoId);
-
-    response.status(OK).json(TodoResponseFactory.successOne(updatedTodoItem!));
+      updateTodoById(todoId, request.body).then(() => {
+        getTodoById(todoId).then((updatedTodoItem) => {
+          response
+            .status(OK)
+            .json(TodoResponseFactory.successOne(updatedTodoItem!));
+        });
+      });
+    });
   }
 );
 
@@ -231,20 +240,18 @@ app.delete(
   "/todo-items/:id",
   async (request: Request<{ id: number }>, response) => {
     const todoId = request.params.id;
-    const todoItem = await getTodoById(todoId);
 
-    if (todoItem) {
-      await deleteTodoById(todoId);
-    }
+    getTodoById(todoId).then((todoItem) => {
+      if (todoItem) {
+        return deleteTodoById(todoId).then(() => {
+          response.status(OK).json(TodoResponseFactory.successEmpty());
+        });
+      }
 
-    const httpStatus = todoItem ? OK : NOT_FOUND;
-    const responseBody = todoItem
-      ? TodoResponseFactory.successEmpty()
-      : TodoResponseFactory.notFound(todoId);
-
-    response.status(httpStatus).json(responseBody);
+      response.status(NOT_FOUND).json(TodoResponseFactory.notFound(todoId));
+    });
   }
 );
 
 app.listen(3030);
-console.log("Listing to port 3030");
+console.log("Listening to port 3030");
