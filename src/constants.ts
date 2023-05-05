@@ -1,4 +1,5 @@
 export const ACTIVITIES = "activities";
+export const TODOS = "todos";
 
 export const OK = 200;
 export const CREATED = 201;
