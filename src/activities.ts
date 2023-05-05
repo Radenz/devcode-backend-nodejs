@@ -1,11 +1,21 @@
 import { OkPacket } from "mysql";
 import { ACTIVITIES } from "./constants.js";
 import { query } from "./database.js";
-import { Nullable } from "./types/common.js";
+import { GenericJson, Nullable } from "./types/common.js";
 
 export interface ActivityGroup {
   title: string;
   email: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface RawActivityGroup {
+  activity_id: number;
+  title: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ActivityGroupPatch {
@@ -23,19 +33,27 @@ export async function insertActivity(
 
   const createdActivityGroupId = insertResult.insertId;
 
-  return await query<ActivityGroup[]>(
+  return await query<RawActivityGroup[]>(
     `SELECT * FROM ${ACTIVITIES} WHERE activity_id = ?`,
     [createdActivityGroupId]
-  ).then((activities) => activities[0]);
+  ).then((activities) => adjustKeys(activities[0]));
+}
+
+export async function getActivities(): Promise<ActivityGroup[]> {
+  return await query<RawActivityGroup[]>(`SELECT * FROM ${ACTIVITIES}`).then(
+    (activities) => activities.map((activity) => adjustKeys(activity))
+  );
 }
 
 export async function getActivityById(
   id: number
 ): Promise<Nullable<ActivityGroup>> {
-  return await query<ActivityGroup[]>(
+  return await query<RawActivityGroup[]>(
     `SELECT * FROM ${ACTIVITIES} WHERE activity_id = ?`,
     [id]
-  ).then((activities) => (activities.length == 0 ? null : activities[0]));
+  ).then((activities) =>
+    activities.length == 0 ? null : adjustKeys(activities[0])
+  );
 }
 
 export async function deleteActivityById(id: number): Promise<void> {
@@ -53,4 +71,13 @@ export async function updateTitleById(
     `UPDATE ${ACTIVITIES} SET title = ?, updated_at = CURRENT_TIMESTAMP WHERE activity_id = ?`,
     [title, id]
   ).then((_) => void 0);
+}
+
+function adjustKeys(rawActivityGroup: RawActivityGroup): ActivityGroup {
+  const activityGroup: GenericJson = rawActivityGroup;
+  activityGroup["createdAt"] = activityGroup["created_at"];
+  activityGroup["updatedAt"] = activityGroup["updated_at"];
+  delete activityGroup["created_at"];
+  delete activityGroup["updated_at"];
+  return activityGroup as ActivityGroup;
 }

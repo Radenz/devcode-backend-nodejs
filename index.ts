@@ -13,6 +13,7 @@ import {
   ActivityGroup,
   ActivityGroupPatch,
   deleteActivityById,
+  getActivities,
   getActivityById,
   insertActivity,
   updateTitleById,
@@ -28,9 +29,7 @@ app.use(express.json());
  * Get all
  */
 app.get("/activity-groups", async (_, response) => {
-  const activityGroups = await query<ActivityGroup[]>(
-    `SELECT * FROM ${ACTIVITIES}`
-  );
+  const activityGroups = await getActivities();
 
   response
     .status(200)
