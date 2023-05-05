@@ -217,12 +217,6 @@ app.patch(
         .json(TodoResponseFactory.notFound(todoId));
     }
 
-    if (!request.body.title) {
-      return response
-        .status(BAD_REQUEST)
-        .json(TodoResponseFactory.emptyTitle());
-    }
-
     await updateTodoById(todoId, request.body);
     const updatedTodoItem = await getTodoById(todoId);
 

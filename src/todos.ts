@@ -109,22 +109,22 @@ function getQuerySetters(todoItem: TodoItem): [string, any[]] {
   const setters = [];
   const values = [];
 
-  if (todoItem.title) {
+  if (todoItem.title !== undefined) {
     setters.push("title = ?");
     values.push(todoItem.title);
   }
 
-  if (todoItem.priority) {
+  if (todoItem.priority !== undefined) {
     setters.push("priority = ?");
     values.push(todoItem.priority);
   }
 
-  if (todoItem.is_active) {
+  if (todoItem.is_active !== undefined) {
     setters.push("is_active = ?");
     values.push(todoItem.is_active);
   }
 
-  if (todoItem.status) {
+  if (todoItem.status !== undefined) {
     setters.push("status = ?");
     values.push(todoItem.status);
   }
