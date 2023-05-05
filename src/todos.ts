@@ -9,6 +9,7 @@ export interface TodoItem {
   title?: string;
   priority?: string;
   is_active?: boolean;
+  status?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -121,6 +122,11 @@ function getQuerySetters(todoItem: TodoItem): [string, any[]] {
   if (todoItem.is_active) {
     setters.push("is_active = ?");
     values.push(todoItem.is_active);
+  }
+
+  if (todoItem.status) {
+    setters.push("status = ?");
+    values.push(todoItem.status);
   }
 
   return [setters.join(", "), values];

@@ -41,6 +41,7 @@ async function ensureTodosTable() {
         title VARCHAR(255) NOT NULL,
         priority VARCHAR(255) NOT NULL DEFAULT 'very-high',
         is_active BOOLEAN NOT NULL DEFAULT true,
+        status VARCHAR(255) NOT NULL DEFAULT 'ok',
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (todo_id),
