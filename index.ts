@@ -15,6 +15,7 @@ import {
 import {
   GetAllTodoQuery,
   TodoItem,
+  deleteTodoById,
   getTodoById,
   getTodos,
   getTodosByActivityId,
@@ -237,7 +238,7 @@ app.delete(
     const todoItem = await getTodoById(todoId);
 
     if (todoItem) {
-      await deleteActivityById(todoId);
+      await deleteTodoById(todoId);
     }
 
     const httpStatus = todoItem ? OK : NOT_FOUND;

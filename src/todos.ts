@@ -9,7 +9,6 @@ export interface TodoItem {
   title?: string;
   priority?: string;
   is_active?: boolean;
-  status?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -39,7 +38,7 @@ export async function getTodosByActivityId(
   activityId: number
 ): Promise<TodoItem[]> {
   return await query<RawTodoItem[]>(
-    `SELECT * FROM ${TODOS} WHERE activity_id = ?`,
+    `SELECT * FROM ${TODOS} WHERE activity_group_id = ?`,
     [activityId]
   ).then((todos) => adjustKeysMany(todos));
 }
@@ -106,11 +105,6 @@ function getQuerySetters(todoItem: TodoItem): [string, any[]] {
     values.push(todoItem.is_active);
   }
 
-  if (todoItem.status) {
-    setters.push("status = ?");
-    values.push(todoItem.status);
-  }
-
   return [setters.join(", "), values];
 }
 
@@ -120,9 +114,11 @@ function adjustKeysMany(rawTodoItems: RawTodoItem[]): TodoItem[] {
 
 function adjustKeys(rawTodoItem: RawTodoItem): TodoItem {
   const todoItem: GenericJson = rawTodoItem;
+  todoItem["id"] = todoItem["todo_id"];
   todoItem["createdAt"] = todoItem["created_at"];
   todoItem["updatedAt"] = todoItem["updated_at"];
   delete todoItem["created_at"];
   delete todoItem["updated_at"];
+  delete todoItem["todo_id"];
   return todoItem as TodoItem;
 }
