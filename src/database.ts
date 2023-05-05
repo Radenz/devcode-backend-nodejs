@@ -40,7 +40,7 @@ async function ensureTodosTable() {
         activity_group_id INT NOT NULL,
         title VARCHAR(255) NOT NULL,
         priority VARCHAR(255) NOT NULL DEFAULT 'very-high',
-        is_active BOOLEAN NOT NULL,
+        is_active BOOLEAN NOT NULL DEFAULT true,
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (todo_id),

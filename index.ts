@@ -180,7 +180,7 @@ app.get(
 app.post(
   "/todo-items",
   async (request: Request<{}, any, TodoItem>, response) => {
-    const { title, activity_group_id, is_active } = request.body;
+    const { title, activity_group_id } = request.body;
 
     if (!title) {
       return response
@@ -188,11 +188,7 @@ app.post(
         .json(ActivityGroupResponseFactory.emptyTitle());
     }
 
-    const createdTodoItem = await insertTodo(
-      title,
-      activity_group_id!,
-      is_active!
-    );
+    const createdTodoItem = await insertTodo(title, activity_group_id!);
 
     response
       .status(CREATED)
