@@ -47,7 +47,7 @@ export async function getTodoById(id: number): Promise<Nullable<TodoItem>> {
   return await query<RawTodoItem[]>(
     `SELECT * FROM ${TODOS} WHERE todo_id = ?`,
     [id]
-  ).then((todos) => (todos.length == 0 ? null : adjustKeys(todos[0])));
+  ).then((todos) => (todos.length == 0 ? null : adjustKeysAndBool(todos[0])));
 }
 
 // !! Misleading example
@@ -83,7 +83,7 @@ export async function insertTodo(
   return await query<RawTodoItem[]>(
     `SELECT * FROM ${TODOS} WHERE todo_id = ?`,
     [createdTodoId]
-  ).then((todos) => adjustKeys(todos[0]));
+  ).then((todos) => adjustKeysAndBool(todos[0]));
 }
 
 export async function updateTodoById(
@@ -127,14 +127,15 @@ function getQuerySetters(todoItem: TodoItem): [string, any[]] {
 }
 
 function adjustKeysMany(rawTodoItems: RawTodoItem[]): TodoItem[] {
-  return rawTodoItems.map((todoItem) => adjustKeys(todoItem));
+  return rawTodoItems.map((todoItem) => adjustKeysAndBool(todoItem));
 }
 
-function adjustKeys(rawTodoItem: RawTodoItem): TodoItem {
+function adjustKeysAndBool(rawTodoItem: RawTodoItem): TodoItem {
   const todoItem: GenericJson = rawTodoItem;
   todoItem["id"] = todoItem["todo_id"];
   todoItem["createdAt"] = todoItem["created_at"];
   todoItem["updatedAt"] = todoItem["updated_at"];
+  todoItem["is_active"] = !!todoItem["is_active"];
   delete todoItem["created_at"];
   delete todoItem["updated_at"];
   delete todoItem["todo_id"];
