@@ -188,6 +188,12 @@ app.post(
         .json(ActivityGroupResponseFactory.emptyTitle());
     }
 
+    if (!activity_group_id) {
+      return response
+        .status(BAD_REQUEST)
+        .json(ActivityGroupResponseFactory.emptyActivityId());
+    }
+
     const createdTodoItem = await insertTodo(title, activity_group_id!);
 
     response

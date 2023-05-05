@@ -48,4 +48,11 @@ export abstract class ActivityGroupResponseFactory {
       message: "title cannot be null",
     };
   }
+
+  static emptyActivityId(): GenericResponse {
+    return {
+      status: "Bad Request",
+      message: "activity_group_id cannot be null",
+    };
+  }
 }
