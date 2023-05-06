@@ -1,16 +1,17 @@
 import mysql from "mysql";
 
-export const connection = mysql.createPool({
+export const pool = mysql.createPool({
   host: process.env.MYSQL_HOST!,
   port: +process.env.MYSQL_PORT!,
   user: process.env.MYSQL_USER!,
   password: process.env.MYSQL_PASSWORD!,
   database: process.env.MYSQL_DBNAME!,
+  connectionLimit: 100,
 });
 
 async function ensureActivitiesTable() {
   return new Promise<void>((resolve, reject) => {
-    connection.query(
+    pool.query(
       `
       CREATE TABLE IF NOT EXISTS activities (
         activity_id INT NOT NULL AUTO_INCREMENT,
@@ -33,7 +34,7 @@ async function ensureActivitiesTable() {
 
 async function ensureTodosTable() {
   return new Promise<void>((resolve, reject) => {
-    connection.query(
+    pool.query(
       `
       CREATE TABLE IF NOT EXISTS todos (
         todo_id INT NOT NULL AUTO_INCREMENT,
@@ -60,7 +61,7 @@ async function ensureTodosTable() {
 
 export async function query<T>(query: string, values: any[] = []): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    connection.query(query, values, (error, result: T, __) => {
+    pool.query(query, values, (error, result: T, __) => {
       if (error) {
         reject(error);
       }

@@ -1,6 +1,6 @@
 import { OkPacket } from "mysql";
 import { TODOS } from "./constants.js";
-import { query } from "./database.js";
+import { pool, query } from "./database.js";
 import { GenericJson, Nullable } from "./types/common.js";
 
 export interface TodoItem {
@@ -55,17 +55,26 @@ export async function insertTodo(
   title: string,
   activityGroupId: number
 ): Promise<TodoItem> {
-  const insertResult = await query<OkPacket>(
-    `INSERT INTO ${TODOS} (activity_group_id, title) VALUES (?, ?)`,
-    [activityGroupId, title]
-  );
+  return new Promise<TodoItem>((resolve, _) => {
+    pool.getConnection((_, connection) => {
+      connection.query(
+        `INSERT INTO ${TODOS} (activity_group_id, title) VALUES (?, ?)`,
+        [activityGroupId, title],
+        (_, insertResult: OkPacket, __) => {
+          const createdTodoId = insertResult.insertId;
 
-  const createdTodoId = insertResult.insertId;
-
-  return await query<RawTodoItem[]>(
-    `SELECT * FROM ${TODOS} WHERE todo_id = ?`,
-    [createdTodoId]
-  ).then((todos) => adjustKeysAndBool(todos[0]));
+          connection.query(
+            `SELECT * FROM ${TODOS} WHERE todo_id = ?`,
+            [createdTodoId],
+            (_, activities: RawTodoItem[]) => {
+              const createdTodo = adjustKeysAndBool(activities[0]);
+              resolve(createdTodo);
+            }
+          );
+        }
+      );
+    });
+  });
 }
 
 export async function updateTodoById(

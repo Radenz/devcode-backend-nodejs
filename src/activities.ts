@@ -1,6 +1,6 @@
 import { OkPacket } from "mysql";
 import { ACTIVITIES } from "./constants.js";
-import { query } from "./database.js";
+import { pool, query } from "./database.js";
 import { GenericJson, Nullable } from "./types/common.js";
 
 export interface ActivityGroup {
@@ -26,17 +26,26 @@ export async function insertActivity(
   title: string,
   email: string
 ): Promise<ActivityGroup> {
-  const insertResult = await query<OkPacket>(
-    `INSERT INTO ${ACTIVITIES} (title, email) VALUES (?, ?)`,
-    [title, email]
-  );
+  return new Promise<ActivityGroup>((resolve, _) => {
+    pool.getConnection((_, connection) => {
+      connection.query(
+        `INSERT INTO ${ACTIVITIES} (title, email) VALUES (?, ?)`,
+        [title, email],
+        (_, insertResult: OkPacket, __) => {
+          const createdActivityGroupId = insertResult.insertId;
 
-  const createdActivityGroupId = insertResult.insertId;
-
-  return await query<RawActivityGroup[]>(
-    `SELECT * FROM ${ACTIVITIES} WHERE activity_id = ?`,
-    [createdActivityGroupId]
-  ).then((activities) => adjustKeys(activities[0]));
+          connection.query(
+            `SELECT * FROM ${ACTIVITIES} WHERE activity_id = ?`,
+            [createdActivityGroupId],
+            (_, activities: RawActivityGroup[]) => {
+              const createdActivity = adjustKeys(activities[0]);
+              resolve(createdActivity);
+            }
+          );
+        }
+      );
+    });
+  });
 }
 
 export async function getActivities(): Promise<ActivityGroup[]> {
