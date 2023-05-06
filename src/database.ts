@@ -6,7 +6,8 @@ export const pool = mysql.createPool({
   user: process.env.MYSQL_USER!,
   password: process.env.MYSQL_PASSWORD!,
   database: process.env.MYSQL_DBNAME!,
-  connectionLimit: 100,
+  connectionLimit: 1000,
+  waitForConnections: true,
 });
 
 async function ensureActivitiesTable() {

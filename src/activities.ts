@@ -38,6 +38,7 @@ export async function insertActivity(
             `SELECT * FROM ${ACTIVITIES} WHERE activity_id = ?`,
             [createdActivityGroupId],
             (_, activities: RawActivityGroup[]) => {
+              connection.release();
               const createdActivity = adjustKeys(activities[0]);
               resolve(createdActivity);
             }

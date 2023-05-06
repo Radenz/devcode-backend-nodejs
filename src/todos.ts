@@ -67,6 +67,7 @@ export async function insertTodo(
             `SELECT * FROM ${TODOS} WHERE todo_id = ?`,
             [createdTodoId],
             (_, activities: RawTodoItem[]) => {
+              connection.release();
               const createdTodo = adjustKeysAndBool(activities[0]);
               resolve(createdTodo);
             }
